@@ -1,0 +1,418 @@
+<head>
+  <meta charset="utf-8" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"
+  ></script>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+    crossorigin="anonymous"
+  />
+  <script src="dataManagement.js"></script>
+  <script src="artists.js"></script>
+  <script src="genres.js"></script>
+  <script src="tracks.js"></script>
+  <script src="topArtists.js"></script>
+</head>
+
+<style>
+
+  #titre{ 
+    color:#1DB954;
+  }
+
+
+
+  .dates {
+      font-family: "Verdana";
+      font-size: 3em;
+  }
+
+  .pie text {
+      font-family: "Verdana";
+      fill: #888;
+  }
+
+
+
+  .pie .name-text{
+      font-size: 1.5em;
+  }
+
+  .pie .value-text{
+      font-size: 3em;
+  }
+  */
+</style>
+
+<body class="pb-5">
+  <div class="container">
+    <div class="col bg-light overflow-auto rounded my-3 py-2">
+      Auteurs : <a href="mailto:elodie.bourbon@etu.univ-lyon1.fr">Elodie BOURBON</a>, <a href="mailto:chloe.conrad@etu.univ-lyon1.fr">Chloé CONRAD</a>, <a href="mailto:elliot.faugier@etu.univ-lyon1.fr">Elliot FAUGIER</a>
+
+    </div>
+    <div id="titre" class="row bg-light overflow-auto rounded my-3 py-2 text-center">
+      <h1><b>Spotiview</b></h1>
+    </div>
+
+    <h4><b>Sélection de l'utilisateur : </b>
+    </h4>
+    <select id="subject" class="form-select my-2" onchange="selectSubject()">
+      <option selected value="elliot">Elliot</option>
+      <option value="elodie">Elodie</option>
+    </select>
+  </div>
+
+  <div class="container">
+
+    <div id="general_viz" class="row m-0 p-1">
+      <div class="titre row my-5">
+        <div class="row bg-light overflow-auto rounded m-1 text-center">
+          <h2>Les genres musicaux</h2>
+        </div>
+        <div class="row bg-light overflow-auto rounded m-1 py-2">
+          Histogramme du temps d'écoute pour chaque genre musical faisant partie des 25 % des genres les plus écoutés par l'utilisateur.
+            <br>Pour obtenir des détails sur un genre, passez votre souris sur les éléments de l'histogramme.
+            <br><br><strong>Attention :</strong>
+            <ul>
+              <li>Une échelle logarithmique a été utilisée pour la taille des barres.</li>
+              <li>Les couleurs n'ont pas de signification.</li>
+            </ul>
+          </ul>
+        </div>
+
+        <div id="genres" class="col bg-light overflow-auto rounded m-1"></div>
+
+        <div
+          id="genres-details"
+          class="col-2 bg-light overflow-auto rounded m-1"
+        ></div>
+      </div>
+
+      <div class="row my-5">
+
+        <div class="row bg-light overflow-auto rounded m-1 py-2 text-center">
+          <h2>Les 10 artistes les plus écoutés</h2>
+          </div>
+          <div class="row bg-light overflow-auto rounded m-1 py-2 text-center">
+          <div id="firstfive" class="col-md-6"></div>
+          <div id="lastfive" class="col-md-6"></div>
+          </div>
+        </div>
+        <div id="top-artists" class="col bg-light overflow-auto rounded m-1">
+          <div id="firstfive" class="col-md-6"></div>
+          <div id="lastfive" class="col-md-6"></div>
+        </div>
+
+        <div
+          id="top-artists-details"
+          class="col-2 bg-light overflow-auto rounded m-1"
+        ></div>
+      </div>
+
+      <div class="row my-5">
+        <div class="row bg-light overflow-auto rounded m-1 py-2 text-center">
+          <h2>Les artistes</h2>
+        </div>
+        <div class="row bg-light overflow-auto rounded m-1 py-2">
+          Donuts représentant les artistes écoutés par l'utilisateur.
+          <br>Le premier donut permet de choisir si vous souhaitez observer (dans le second donut) les artistes avec un temps d'écoute représentant plus de 0,2 % du temps d'écoute total ou les autres. 
+          <br>Pour visualiser les noms des artistes et la proportion de temps d'écoute qu'ils représentent dans leur catégorie, passez votre souris sur les éléments du donut.
+          <br>Les couleurs n'ont pas de signification.
+
+        </div>
+        <div class="col bg-light overflow-auto rounded m-1 p-3">
+          <div class="titre row">
+            <div class="row">
+              <div
+                id="artists"
+                class="col bg-light overflow-auto rounded text-center"
+              ></div>
+              <div
+                id="detailedArtists"
+                class="col bg-light overflow-auto rounded"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row my-5">
+        <div class="row bg-light overflow-auto rounded m-1 py-2 text-center">
+          <h2>Les sons</h2>
+        </div>
+
+        <!--
+        <div id="songs" class="col bg-light overflow-auto rounded m-1"></div>
+        -->
+        <div class="row bg-light overflow-auto rounded m-1 py-2">
+        <h4>Couleur du son selon la moyenne d'écoute</h4>
+        <div id="trackLegend" class="row bg-light overflow-auto rounded m-1 text-center">
+        </div>
+        </div>
+        
+        <div
+          id="songs-details"
+          class="bg-light overflow-auto rounded m-1"
+        ></div>
+      </div>
+
+      <div class="row bg-light overflow-auto rounded m-2 py-2">
+
+        <h4>Inspirations : </h4> 
+        <ul>
+          <li><a href="https://observablehq.com/@mguiv/construire-un-graphique-pas-a-pas-avec-d3-js">Visualisation des sons</a></li>
+          <li><a href="https://observablehq.com/@didoesdigital/21-june-2020-brushing-to-filter-and-zoom-using-d3-brush">Sélectionneur de dates</a></li>
+        </ul>
+        <h4>Page web du cours : </h4> 
+        <ul>
+          <li><a href="https://lyondataviz.github.io/teaching/lyon1-m2/2023/">Aurélien Tabard</a></li>
+        </ul>
+
+        </div>
+
+      <div class="row my-5">
+        <div class="row overflow-auto rounded m-1 py-2 text-center">
+        </div>
+
+        <div  class="row overflow-auto rounded m-1"></div>
+
+        <div
+          class="row overflow-auto rounded m-1"
+        ></div>
+      </div>
+    </div>
+  </div>
+  <footer class="pt-5">
+    <div class="container fixed-bottom bg-body border border-dark">
+      <div id="brush-text" class="text-center "><h4><b>Filtrer les visualisations temporellement</b></h4></div>
+      <div id="brush" class="row bg-light overflow-auto rounded m-1"></div>
+      <div class="row justify-content-center dates bg-light rounded m-1">&zwnj;</div>
+    </div>
+</footer>
+</body>
+
+<script type="module">
+  window.global = {
+    subject: document.getElementById("subject").value,
+    fullHistory: null,
+    fullArtists: null,
+    fullAlbums: null,
+    fullTracks: null,
+
+    startTimestampFilter: null,
+    endTimestampFilter: null,
+
+    historyFiltered: null,
+    artistFiltered: null,
+    albumsFiltered: null,
+    fullTracksFiltered: null,
+
+    mainArtistSelected: true,
+
+    tracksX: null,
+    tracksY: null,
+    tracksData: null,
+    trackColorScale: null,
+
+  };
+
+  await loadFullData();
+
+  window.global.historyFiltered = window.global.fullHistory;
+  window.global.artistFiltered = window.global.fullArtists;
+  window.global.albumsFiltered = window.global.fullAlbums;
+  window.global.fullTracksFiltered = window.global.fullTracks;
+
+  window.global.startTimestampFilter = d3.min(window.global.historyFiltered, x => x.ts)
+  window.global.endTimestampFilter = d3.max(window.global.historyFiltered, x => x.ts)
+
+  const groupedHistoryByTracks = d3.group(
+    window.global.fullHistory,
+    (d) => d.trackId
+  );
+
+  const result = Array.from(groupedHistoryByTracks, ([key, values]) => ({
+    artist: key,
+    totalTs: d3.sum(values, (d) => d.ms_played),
+  }));
+
+  const totalMs = d3.sum(result, (d) => d.totalTs);
+
+  result.forEach((d) => {
+    d.totalTs = (d.totalTs * 100) / totalMs;
+  });
+
+  result.sort(function (x, y) {
+    return d3.descending(x.totalTs, y.totalTs);
+  });
+
+  artistsSelector();
+  artistsDetails();
+  brush();
+  genresViz();
+  topArtistsViz()
+  tracks()
+
+  setTimeout(function() {
+    d3.select("#selectorMainArtistsPath")
+    .node()
+    .dispatchEvent(new MouseEvent("click"));
+  d3.select("#selectorMainArtistsG")
+    .node()
+    .dispatchEvent(new MouseEvent("click"));
+  }, 10);
+
+  var select = document.getElementById("subject");
+  select.addEventListener("change", async () => {
+    await selectSubject()
+    brush()
+    updateAll()
+  });
+
+
+
+  function brush() {
+
+    if(document.getElementById("rangesvg") !== null){
+      d3.select('#rangesvg').remove()
+    }
+    const groupByDay = d3.groups(window.global.fullHistory, (d) => {
+      return new Date(d.ts.toDateString());
+    });
+
+    groupByDay.forEach((day) => {
+      const [i, historyOfDay] = day;
+      day.msPlayedTotal = d3.sum(historyOfDay, (d) => d.ms_played);
+    });
+
+    const width = 300;
+    const height = 30;
+
+    const space = 8;
+
+    const rangeSvg = d3
+      .select("#brush")
+      .append("svg")
+      .attr("id", "rangesvg")
+      .attr("viewBox", [0, 0, width, height]);
+    //.style("background-color", "silver")
+
+    const timeScale = d3.scaleTime(
+      [d3.min(groupByDay, (h) => h[0]), d3.max(groupByDay, (h) => h[0])],
+      [0, width]
+    );
+    const timeListenningScale = d3.scaleTime(
+      [
+        d3.min(groupByDay, (h) => h.msPlayedTotal),
+        d3.max(groupByDay, (h) => h.msPlayedTotal),
+      ],
+      [0, height - space]
+    );
+
+    rangeSvg
+      .append("g")
+      .selectAll("rect")
+      .data(groupByDay)
+      .enter()
+      .append("rect")
+      .attr("x", (d, i) => timeScale(d[0]) - (width * 0.5) / groupByDay.length)
+      .attr("y", (d, i) => {
+        return height - space - timeListenningScale(d.msPlayedTotal);
+      })
+      .attr("fill", (d, i) => i % 2 === 0 ? "#1DB954" : "#000000")  
+
+      .attr("width", width / groupByDay.length)
+      .attr("height", (d) => timeListenningScale(d.msPlayedTotal));
+
+    const bottomAxis = d3
+      .axisBottom(timeScale)
+      .ticks(d3.timeMonth.every(2))
+      .tickSize(2)
+      .tickFormat(function (date) {
+        if (d3.timeYear(date).getMonth() < date.getMonth()) {
+          return d3.timeFormat("%b")(date);
+        } else {
+          return d3.timeFormat("%Y")(date);
+        }
+      });
+
+    const brush = d3
+      .brushX()
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .on("end", (e) => {
+        window.global.startTimestampFilter = timeScale.invert(e.selection[0]);
+        window.global.endTimestampFilter = timeScale.invert(e.selection[1]);
+        updateAll();
+      });
+
+    rangeSvg.append("g").call(brush);
+
+    rangeSvg
+      .append("g")
+      .call(bottomAxis)
+      .attr(
+        "transform",
+        "translate(0," +
+          timeListenningScale(d3.max(groupByDay, (h) => h.msPlayedTotal)) +
+          ")"
+      )
+      .style("font-size", 3);
+
+      rangeSvg
+      .selectAll("text")
+      .style("font-weight", function (d) {
+            return (JSON.stringify(d).includes("-12-") ) ? "bold" : "normal";
+        });
+  }
+
+  function updateAll() {
+
+    // Reset
+    window.global.historyFiltered = window.global.fullHistory;
+
+
+    const startTimestampFilter = window.global.startTimestampFilter;
+    const endTimestampFilter = window.global.endTimestampFilter;
+
+    // Filter history with the selected range
+    if (!(startTimestampFilter === null || startTimestampFilter === null)) {
+      window.global.historyFiltered = window.global.historyFiltered.filter(
+        (h) => h.ts >= startTimestampFilter && h.ts <= endTimestampFilter
+      );
+
+      var tmp1 = startTimestampFilter.toISOString().slice(0, 10).split("-");
+      var tmp2 = endTimestampFilter.toISOString().slice(0, 10).split("-");
+
+      d3.select(".dates").text(
+        tmp1[2] +
+          "/" +
+          tmp1[1] +
+          "/" +
+          tmp1[0] +
+          " - " +
+          tmp2[2] +
+          "/" +
+          tmp2[1] +
+          "/" +
+          tmp2[0]
+      );
+    }
+
+    // Updates all views
+    artistsSelector();
+    artistsDetails();
+    topArtistsViz()
+    genresViz()
+    tracks()
+    //brush()
+  }
+
+</script>
